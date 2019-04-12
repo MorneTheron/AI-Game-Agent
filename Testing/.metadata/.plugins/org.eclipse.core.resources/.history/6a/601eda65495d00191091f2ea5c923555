@@ -1,0 +1,15 @@
+import javax.swing.JPanel;
+
+public class Game extends JPanel{
+	
+	/**
+	 * This class is responsible for the game map, the display of player and Agent games
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public Game() {
+		
+		
+	}
+
+}
