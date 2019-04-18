@@ -1,0 +1,57 @@
+import java.awt.Image;
+
+public class Blocks 
+{
+    private boolean Goal; 
+    private int ScoreImpact ; //If player makes a move to any empty block, -1 will be subtracted, this optimizes the strategy to use as little moves as possible
+    private String[] Percepts ; //Send an array of what is being perceived on this block, such as toxis smell, light glitter etc. 
+	private String Image ;
+    
+	public Blocks() 
+	{
+		Goal = false ; 
+	    ScoreImpact  = -1 ;
+	    Percepts = new String[1] ;
+	    Percepts[1] = "none" ;
+	}
+	
+	public Blocks(boolean Goal, int ScoreImpact, String[] Percepts) 
+	{
+		this.Goal = Goal ; 
+	    this.ScoreImpact  = ScoreImpact ;
+	    this.Percepts = Percepts ;
+	}
+
+	public boolean isGoal() {
+		return Goal;
+	}
+
+	public void setGoal(boolean goal) {
+		Goal = goal;
+	}
+
+	public int getScoreImpact() {
+		return ScoreImpact;
+	}
+
+	public void setScoreImpact(int scoreImpact) {
+		ScoreImpact = scoreImpact;
+	}
+
+	public String[] getPercepts() {
+		return Percepts;
+	}
+
+	public void setPercepts(String[] percepts) {
+		Percepts = percepts;
+	}
+
+	public String getImage() {
+		return Image;
+	}
+
+	public void setImage(String image) {
+		Image = image;
+	}	
+
+}

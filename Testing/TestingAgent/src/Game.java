@@ -12,7 +12,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -25,8 +25,8 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	 * This class is responsible for the game map, the display of player and Agent games
 	 */
 	private static final long serialVersionUID = 1L;
-    private final int B_WIDTH = 350;
-    private final int B_HEIGHT = 350;
+    private final int B_WIDTH = 1300;
+    private final int B_HEIGHT = 800;
     private final int INITIAL_X = -40;
     private final int INITIAL_Y = -40;
     private final int DELAY = 25;
@@ -34,7 +34,8 @@ public class Game extends JPanel implements ActionListener, Runnable {
     private Timer timer;
     private Image star;
     private Thread animator;
-    private int x, y;
+    private int x = 75, y = 75;
+    private long lastPressProcessed = 0;
     
     private GameMap gMap;
 
@@ -74,7 +75,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	
 	    private void loadImage() {
 	
-	        ImageIcon ii = new ImageIcon("data/character.jpg");
+	        ImageIcon ii = new ImageIcon("data/agent.png");
 	        star = ii.getImage();
 	    }
 	
@@ -101,8 +102,22 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	    private void doDrawing(Graphics g) {
 	        
 	        Graphics2D g2d = (Graphics2D) g;
+	        for(int r = 0 ; r <30 ; r++)
+	        {
+	        	for(int c = 0 ; c < 30 ; c++)
+	        	{
+	        		 g2d.drawImage(gMap.getGameMap()[r][c].getImage(), c*30,r*30, this);
+	        	}
+	        }
+	       
+	    }
+	   
+	    private void drawPlayer(Graphics g) {
+	        
+	        Graphics2D g2d = (Graphics2D) g;
 
-	        g2d.drawImage(gMap.getImage(), gMap.getX(),gMap.getY(), this);
+	        g2d.drawImage(gMap.getImage(), gMap.getX(), gMap.getY(), this);
+	       
 	    }
 	    
 	
@@ -120,6 +135,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 
 	        //drawDonut(g);
 	        doDrawing(g);
+	        drawPlayer(g);
 	        Toolkit.getDefaultToolkit().sync();
 	       // drawStar(g);
 	    }
@@ -186,10 +202,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	
 private void step() {
         
-	gMap.move();
-        
-        repaint(gMap.getX()-1, gMap.getY()-1, 
-        		gMap.getWidth()+2, gMap.getHeight()+2);     
+        repaint(gMap.getX()-1, gMap.getY()-1, gMap.getWidth()+2, gMap.getHeight()+2);     
   
     }    
 
@@ -198,11 +211,12 @@ private void step() {
         @Override
         public void keyReleased(KeyEvent e) {
         	gMap.keyReleased(e);
+        	
         }
 
         @Override
         public void keyPressed(KeyEvent e) {
-        	gMap.keyPressed(e);
+        	gMap.keyPressed(e);	
         }
     }
 

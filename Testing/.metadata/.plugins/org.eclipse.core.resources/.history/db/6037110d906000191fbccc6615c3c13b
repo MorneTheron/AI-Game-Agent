@@ -1,0 +1,178 @@
+import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
+import javax.swing.ImageIcon;
+
+/**
+ * @author Johhny
+ *
+ */
+public class GameMap {
+
+    private int dx;
+    private int dy;
+    private int x = 90;
+    private int y = 90;
+    private int w;
+    private int h;
+    private int BlockSize = 25;
+    private Image image;
+    private long lastPressProcessed = 0;
+    
+    private Blocks[][] GameMap ;
+
+    public GameMap() {
+
+    	GameMap = new Blocks[30][30] ;
+    	GenerateMap("TrainMap.txt") ;
+        loadPlayer();
+    }
+
+    private void loadPlayer() {
+        
+        ImageIcon ii = new ImageIcon("data/agent.png");
+        image = ii.getImage(); 
+        
+        w = image.getWidth(null);
+        h = image.getHeight(null);
+    }
+    
+    private void GenerateMap(String TrainMap)
+    {
+    	
+    	File file = new File("data/TrainMap.txt"); 
+    	String st; 
+    	BufferedReader br;
+    	String[] Percepts = {"none"};
+		try {
+			br = new BufferedReader(new FileReader(file));
+			for(int r = 0 ; r <30; r++)
+			{
+			if ((st = br.readLine()) != null) 
+			  {
+			    System.out.println(st); 
+			    for(int c = 0 ; c < 30 ; c++)
+	    		{
+			    	switch (st.charAt(c)) {
+					case '8':
+						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/wall.png");
+						break;
+					case '2':
+						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/enimy.png");
+						break;
+					case '3':
+						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/enimy.png");
+						break;
+					case '4':
+						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/treasure.png");
+						break;
+
+					default:
+						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/empty.png");
+						break;
+					}
+	    			
+	    		}
+			  }
+			}
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+    }
+
+    public void move() {
+        
+      //  x += dx;
+      //  y += dy;
+    }
+
+    public int getX() {
+        
+        return x;
+    }
+
+    public int getY() {
+        
+        return y;
+    }
+    
+    public int getWidth() {
+        
+        return w;
+    }
+    
+    public int getHeight() {
+        
+        return h;
+    }    
+
+    public Image getImage() {
+        
+        return image;
+    }
+
+    public void keyPressed(KeyEvent e) {
+
+//
+//		if(System.currentTimeMillis() - lastPressProcessed > 500) {
+//
+//        lastPressProcessed = System.currentTimeMillis();
+        
+        int key = e.getKeyCode();
+
+        if (key == KeyEvent.VK_LEFT) {
+            x = x - 30;
+        }
+
+        if (key == KeyEvent.VK_RIGHT) {
+            x = x + 30;
+        }
+
+        if (key == KeyEvent.VK_UP) {
+            y = y -30;
+        }
+
+        if (key == KeyEvent.VK_DOWN) {
+            y = y + 30;
+        }
+//		} 
+    }
+
+    public void keyReleased(KeyEvent e) {
+        
+        int key = e.getKeyCode();
+
+        if (key == KeyEvent.VK_LEFT) {
+            dx = 0;
+        }
+
+        if (key == KeyEvent.VK_RIGHT) {
+            dx = 0;
+        }
+
+        if (key == KeyEvent.VK_UP) {
+            dy = 0;
+        }
+
+        if (key == KeyEvent.VK_DOWN) {
+            dy = 0;
+        }
+    }
+
+	public Blocks[][] getGameMap() {
+		return GameMap;
+	}
+
+	public void setGameMap(Blocks[][] gameMap) {
+		GameMap = gameMap;
+	}
+    
+    
+}
