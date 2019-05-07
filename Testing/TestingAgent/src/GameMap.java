@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
@@ -16,13 +17,18 @@ public class GameMap {
 
     private int dx;
     private int dy;
-    private int x = 90;
-    private int y = 90;
+    private int x = 0;
+    private int Row = 0 ;
+    private int y = 0;
+    private int Col = 0;
     private int w;
     private int h;
     private int BlockSize = 25;
     private Image image;
     private long lastPressProcessed = 0;
+    private int GoalRow = -1 ; 
+    private int GoalCol = -1 ; 
+    
     
     private Blocks[][] GameMap ;
 
@@ -38,6 +44,7 @@ public class GameMap {
         ImageIcon ii = new ImageIcon("data/agent.png");
         image = ii.getImage(); 
         
+        
         w = image.getWidth(null);
         h = image.getHeight(null);
     }
@@ -48,7 +55,8 @@ public class GameMap {
     	File file = new File("data/TrainMap.txt"); 
     	String st; 
     	BufferedReader br;
-    	String[] Percepts = {"none"};
+    	ArrayList<String> Percepts = new ArrayList<String>();
+    	Percepts.add("none") ;
 		try {
 			br = new BufferedReader(new FileReader(file));
 			for(int r = 0 ; r <30; r++)
@@ -60,20 +68,28 @@ public class GameMap {
 	    		{
 			    	switch (st.charAt(c)) {
 					case '8':
-						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/wall.png");
+						GameMap[r][c] = new Blocks(false,8,-1,Percepts,"data/wall.png");
 						break;
 					case '2':
-						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/enimy.png");
+						GameMap[r][c] = new Blocks(false,2,-1,Percepts,"data/enimy.png");
+						UpdatePercepts(r,c,1,"toxic");
+						//UpdatePercepts(r,c,2,"feeling weird");
 						break;
 					case '3':
-						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/enimy.png");
+						GameMap[r][c] = new Blocks(false,3,-1,Percepts,"data/enimy.png");
+						UpdatePercepts(r,c,1,"horible smell");
+						//UpdatePercepts(r,c,2,"somewhat smelly");
 						break;
 					case '4':
-						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/treasure.png");
+						GameMap[r][c] = new Blocks(false,4,-1,Percepts,"data/treasure.png");
+						UpdatePercepts(r,c,1,"very shiny");
+						//UpdatePercepts(r,c,2,"sparkling");
+						GoalCol = c ;
+						GoalRow = r ;
 						break;
 
 					default:
-						GameMap[r][c] = new Blocks(false,-1,Percepts,"data/empty.png");
+						GameMap[r][c] = new Blocks(false,0,-1,Percepts,"data/empty.png");
 						break;
 					}
 	    			
@@ -111,26 +127,89 @@ public class GameMap {
         
         return image;
     }
+    
+    public int getGoalRow() {
+		return GoalRow;
+	}
 
-    public void keyPressed(KeyEvent e) {
+	public void setGoalRow(int goalRow) {
+		GoalRow = goalRow;
+	}
+
+	public int getGoalCol() {
+		return GoalCol;
+	}
+
+	public void setGoalCol(int goalCol) {
+		GoalCol = goalCol;
+	}
+	
+	private void UpdatePercepts(int R, int C, int Rad, String Percept)
+	{
+		if((R - Rad)> 0 & (R + Rad)<26)
+		{
+			if((C - Rad)> 0 & (C+Rad)<29)
+			{
+				for(int r = (R - Rad); r< (R+Rad); r++)
+				{
+						for(int c = (C - Rad); c< (C+Rad); c++)
+						{
+							GameMap[r][c].addPercept(Percept);
+							//System.out.println("R: " + r + " C " + c);
+						}
+				}
+			}
+		}
+	}
+	
+	public boolean DetermineGoalState()
+	{
+		if(Col == GoalCol && Row == GoalRow)
+		{
+		return true;
+		}
+		return false;
+	}
+
+	public void keyPressed(KeyEvent e) {
         
+		if(DetermineGoalState() == false)
+		{
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT) {
-            x = x - 30;
+        	if(DetectCollision(Row, Col - 1)  == false)
+        	{
+        	x = x - 30;	
+        	Col = Col - 1;
+        	}
+            
         }
 
         if (key == KeyEvent.VK_RIGHT) {
+        	if(DetectCollision(Row, Col + 1) == false)
+        	{
             x = x + 30;
+            Col = Col +1;
+        	}
         }
 
         if (key == KeyEvent.VK_UP) {
+        	if(DetectCollision(Row - 1, Col)  == false)
+        	{
             y = y -30;
+            Row = Row - 1;
+        	}
         }
 
         if (key == KeyEvent.VK_DOWN) {
+        	if(DetectCollision(Row + 1, Col)  == false)
+        	{
             y = y + 30;
+            Row = Row + 1;
+        	}
         }
+		}
 
     }
 
@@ -153,6 +232,20 @@ public class GameMap {
         if (key == KeyEvent.VK_DOWN) {
             dy = 0;
         }
+    }
+    
+    public boolean DetectCollision(int Row, int Col)
+    {
+    	if(Row < 0 | Row >26 | Col < 0 | Col>29)
+    	{
+    		return true;
+    	}
+    	if(GameMap[Row][Col].getType() == 8 )
+    	{
+    		return true;
+    	}
+		return false;
+    	
     }
 
 	public Blocks[][] getGameMap() {

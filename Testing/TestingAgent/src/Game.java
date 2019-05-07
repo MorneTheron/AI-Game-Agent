@@ -34,8 +34,9 @@ public class Game extends JPanel implements ActionListener, Runnable {
     private Timer timer;
     private Image star;
     private Thread animator;
-    private int x = 75, y = 75;
+    private int x = 15, y = 15;
     private long lastPressProcessed = 0;
+    private boolean ShowGame = true ; 
     
     private GameMap gMap;
 
@@ -167,7 +168,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 
         beforeTime = System.currentTimeMillis();
 
-        while (true) {
+        while (ShowGame) {
 
             cycle();
             repaint();
@@ -195,9 +196,13 @@ public class Game extends JPanel implements ActionListener, Runnable {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
-		step();
-		
+
+		if(gMap.DetermineGoalState())
+		{
+			//Show Goal screen
+		}
+			step();
+
 	}
 	
 private void step() {
