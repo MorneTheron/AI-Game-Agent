@@ -219,8 +219,10 @@ public class Game extends JPanel implements ActionListener, Runnable {
 
 	}
 	
-	private void step() {
+private void step() {
+	
 		
+        
         repaint(gMap.getX()-1, gMap.getY()-1, gMap.getWidth()+2, gMap.getHeight()+2);     
   
     }

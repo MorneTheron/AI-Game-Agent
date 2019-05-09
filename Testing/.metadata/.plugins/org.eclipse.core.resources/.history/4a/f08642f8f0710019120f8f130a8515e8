@@ -38,7 +38,6 @@ public class Game extends JPanel implements ActionListener, Runnable {
     private int x = 15, y = 15;
     private long lastPressProcessed = 0;
     private boolean ShowGame = true ; 
-    private String ListPercepts = "" ;
     
     private GameMap gMap;
     private int Score = 1000 ;
@@ -219,25 +218,11 @@ public class Game extends JPanel implements ActionListener, Runnable {
 
 	}
 	
-	private void step() {
-		
+private void step() {
+        
         repaint(gMap.getX()-1, gMap.getY()-1, gMap.getWidth()+2, gMap.getHeight()+2);     
   
-    }
-
-	private void ShowPerceptSequence()
-	{
-		ListPercepts = "" ;
-		for(int p = 0 ; p < gMap.getPerceptSequence().size() ; p++)
-		{
-			ListPercepts = ListPercepts + gMap.getPerceptSequence().get(p) + ", ";
-		}
-	}
-	
-	private void UpdateScore()
-	{
-		
-	}
+    }    
 
     private class TAdapter extends KeyAdapter {
 

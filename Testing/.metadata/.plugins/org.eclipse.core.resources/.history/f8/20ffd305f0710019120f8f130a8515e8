@@ -1,7 +1,6 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -38,10 +37,8 @@ public class Game extends JPanel implements ActionListener, Runnable {
     private int x = 15, y = 15;
     private long lastPressProcessed = 0;
     private boolean ShowGame = true ; 
-    private String ListPercepts = "" ;
     
     private GameMap gMap;
-    private int Score = 1000 ;
 
 	public Game() {
 		
@@ -140,7 +137,6 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	        //drawDonut(g);
 	        doDrawing(g);
 	        drawPlayer(g);
-	        drawScore(g);
 	        Toolkit.getDefaultToolkit().sync();
 	       // drawStar(g);
 	    }
@@ -149,16 +145,6 @@ public class Game extends JPanel implements ActionListener, Runnable {
 
 	        g.drawImage(star, x, y, this);
 	        Toolkit.getDefaultToolkit().sync(); //synchronises the painting on systems that buffer graphics events.
-	    }
-	    
-	    private void drawScore(Graphics g)
-	    {
-	    	  Font font = new Font("Serif", Font.PLAIN, 44);
-	    	  
-	    	  g.setFont(font);
-	    	 
-	    	  // Draw a string such that its base line is at x, y
-	    	  g.drawString("Score: " + Score , 950, 50);
 	    }
 	
 	
@@ -219,25 +205,11 @@ public class Game extends JPanel implements ActionListener, Runnable {
 
 	}
 	
-	private void step() {
-		
+private void step() {
+        
         repaint(gMap.getX()-1, gMap.getY()-1, gMap.getWidth()+2, gMap.getHeight()+2);     
   
-    }
-
-	private void ShowPerceptSequence()
-	{
-		ListPercepts = "" ;
-		for(int p = 0 ; p < gMap.getPerceptSequence().size() ; p++)
-		{
-			ListPercepts = ListPercepts + gMap.getPerceptSequence().get(p) + ", ";
-		}
-	}
-	
-	private void UpdateScore()
-	{
-		
-	}
+    }    
 
     private class TAdapter extends KeyAdapter {
 
