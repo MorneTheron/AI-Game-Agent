@@ -16,16 +16,15 @@ public class Blocks
 		Goal = false ; 
 	    ScoreImpact  = -1 ;
 	    Percepts = new ArrayList<String>() ;
-	    Percepts.add("none") ;
 	}
 	
-	public Blocks(boolean Goal,int Type, int ScoreImpact, ArrayList<String> Percepts, String ImageLoc) 
+	public Blocks(boolean Goal,int Type, int ScoreImpact, String ImageLoc) 
 	{
 		this.Percepts = new ArrayList<String>() ;
 		this.Goal = Goal ; 
 		this.Type = Type ;
 	    this.ScoreImpact  = ScoreImpact ;
-	    this.Percepts = Percepts ;
+	    this.Percepts = new ArrayList<String>() ;
 	    ImageIcon ii = new ImageIcon(ImageLoc);
 	    Image = ii.getImage(); 
 	}
@@ -56,7 +55,7 @@ public class Blocks
 	
 	public void addPercept(String Percept)
 	{
-		Percepts.add(Percept) ;
+		Percepts.add(0, Percept)  ;
 	}
 
 	public java.awt.Image getImage() {
@@ -68,7 +67,8 @@ public class Blocks
 	}
 
 	public int getType() {
-		return Type;
+		
+		return Type ;
 	}
 
 	public void setType(int type) {

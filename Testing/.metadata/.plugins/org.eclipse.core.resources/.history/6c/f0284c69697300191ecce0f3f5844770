@@ -1,0 +1,46 @@
+
+public class KB {
+	
+	private String Percept;
+	private int PerceptImpact = 0 ;
+	private boolean AllowableMove = true;
+	private int SuggestedMove ; //-1 means take move back after it has been made, 0 means no suggestion, 1 to 8 means direction to move in next
+
+	public KB() {
+		this.Percept = "";
+		this.PerceptImpact = 0 ;
+		this.SuggestedMove = 0; 	
+	}
+	
+	public KB(String Percept, int Impact, int Suggest) {
+		this.Percept = "";
+		this.PerceptImpact = 0 ;
+		this.SuggestedMove = 0; 	
+	}
+	
+	public String getPercept() {
+		return Percept;
+	}
+
+	public void setPercept(String percept) {
+		Percept = percept;
+	}
+
+	public int getPerceptImpact() {
+		return PerceptImpact;
+	}
+
+	public void setPerceptImpact(int perceptImpact) {
+		PerceptImpact = perceptImpact;
+	}
+
+	public int getSuggestedMove() {
+		return SuggestedMove;
+	}
+
+	public void setSuggestedMove(int suggestedMove) {
+		SuggestedMove = suggestedMove;
+	}
+	
+	
+}

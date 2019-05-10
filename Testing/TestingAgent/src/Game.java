@@ -141,6 +141,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	        doDrawing(g);
 	        drawPlayer(g);
 	        drawScore(g);
+	        drawPercepts(g);
 	        Toolkit.getDefaultToolkit().sync();
 	       // drawStar(g);
 	    }
@@ -153,12 +154,22 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	    
 	    private void drawScore(Graphics g)
 	    {
-	    	  Font font = new Font("Serif", Font.PLAIN, 44);
+	    
 	    	  
+	    	  Font font = new Font("Serif", Font.PLAIN, 44);
 	    	  g.setFont(font);
-	    	 
 	    	  // Draw a string such that its base line is at x, y
 	    	  g.drawString("Score: " + Score , 950, 50);
+	    }
+	    
+	    private void drawPercepts(Graphics g)
+	    {
+	    
+	    	  ShowPerceptSequence();
+	    	  Font font = new Font("Serif", Font.PLAIN, 15);
+	    	  g.setFont(font);
+	    	  // Draw a string such that its base line is at x, y
+	    	  g.drawString("Percepts: " + ListPercepts , 950, 100);
 	    }
 	
 	
@@ -216,6 +227,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 			//Show Goal screen
 		}
 			step();
+			
 
 	}
 	
@@ -236,13 +248,14 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	
 	private void UpdateScore()
 	{
-		
+		Score = Score + gMap.GetScore() ;
 	}
 
     private class TAdapter extends KeyAdapter {
 
         @Override
         public void keyReleased(KeyEvent e) {
+        	UpdateScore();
         	gMap.keyReleased(e);
         	
         }

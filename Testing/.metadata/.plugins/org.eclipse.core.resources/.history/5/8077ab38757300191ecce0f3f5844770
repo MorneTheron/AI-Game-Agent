@@ -1,0 +1,13 @@
+import java.util.ArrayList;
+
+public class surroundings {
+	
+	private int moveLocation = 0 ;
+	private ArrayList<String> percepts ;
+	
+	public surroundings(int moveLocation, ArrayList<String> percepts)
+	{
+		this.moveLocation = moveLocation ;
+		this.percepts = percepts ;
+	}
+}

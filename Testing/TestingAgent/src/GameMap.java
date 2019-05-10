@@ -15,137 +15,126 @@ import javax.swing.ImageIcon;
  */
 public class GameMap {
 
-    private int dx;
-    private int dy;
-    private int x = 0;
-    private int Row = 0 ;
-    private int y = 0;
-    private int Col = 0;
-    private int w;
-    private int h;
-    private int BlockSize = 25;
-    private Image image;
-    private long lastPressProcessed = 0;
-    private int GoalRow = -1 ; 
-    private int GoalCol = -1 ; 
-    private ArrayList<String> PerceptSequence ;
-    
-    
-    private Blocks[][] GameMap ;
+	private int dx;
+	private int dy;
+	private int x = 0;
+	private int Row = 0;
+	private int y = 0;
+	private int Col = 0;
+	private int w;
+	private int h;
+	private int BlockSize = 25;
+	private Image image;
+	private long lastPressProcessed = 0;
+	private int GoalRow = -1;
+	private int GoalCol = -1;
+	private ArrayList<String> PerceptSequence;
 
-    public GameMap() {
+	private Blocks[][] GameMap;
 
-    	GameMap = new Blocks[30][30] ;
-    	PerceptSequence = new ArrayList<String>();
-    	GenerateMap("TrainMap.txt") ;
-        loadPlayer();
-    }
+	public GameMap() {
 
-    private void loadPlayer() {
-        
-        ImageIcon ii = new ImageIcon("data/agent.png");
-        image = ii.getImage(); 
-        
-        
-        w = image.getWidth(null);
-        h = image.getHeight(null);
-    }
-    
-    private void GenerateMap(String TrainMap)
-    {
-    	
-    	File file = new File("data/TrainMap.txt"); 
-    	String st; 
-    	BufferedReader br;
-    	ArrayList<String> Percepts = new ArrayList<String>();
-    	Percepts.add("none") ;
+		GameMap = new Blocks[30][30];
+		PerceptSequence = new ArrayList<String>();
+		GenerateMap("TrainMap.txt");
+		loadPlayer();
+	}
+
+	private void loadPlayer() {
+
+		ImageIcon ii = new ImageIcon("data/agent.png");
+		image = ii.getImage();
+
+		w = image.getWidth(null);
+		h = image.getHeight(null);
+	}
+
+	private void GenerateMap(String TrainMap) {
+
+		File file = new File("data/TrainMap.txt");
+		String st;
+		BufferedReader br;
 		try {
 			br = new BufferedReader(new FileReader(file));
-			for(int r = 0 ; r <30; r++)
-			{
-			if ((st = br.readLine()) != null) 
-			  {
-			    System.out.println(st); 
-			    for(int c = 0 ; c < 30 ; c++)
-	    		{
-			    	switch (st.charAt(c)) {
-					case '8':
-						GameMap[r][c] = new Blocks(false,8,0,Percepts,"data/wall.png");
-						break;
-					case '2':
-						GameMap[r][c] = new Blocks(false,2,-100,Percepts,"data/enimy.png");
-						break;
-					case '3':
-						GameMap[r][c] = new Blocks(false,3,-1000,Percepts,"data/enimy.png");
-						break;
-					case '4':
-						GameMap[r][c] = new Blocks(false,4,1000,Percepts,"data/treasure.png");
-						GoalCol = c ;
-						GoalRow = r ;
-						break;
+			for (int r = 0; r < 30; r++) {
+				if ((st = br.readLine()) != null) {
+					System.out.println(st);
+					for (int c = 0; c < 30; c++) {
+						switch (st.charAt(c)) {
+						case '8':
+							GameMap[r][c] = new Blocks(false, 8, 0, "data/wall.png");
+							break;
+						case '2':
+							GameMap[r][c] = new Blocks(false, 2, -100, "data/mud.png");
+							break;
+						case '3':
+							GameMap[r][c] = new Blocks(false, 3, -1000, "data/enimy.png");
+							break;
+						case '4':
+							GameMap[r][c] = new Blocks(false, 4, 1000, "data/treasure.png");
+							GoalCol = c;
+							GoalRow = r;
+							break;
 
-					default:
-						GameMap[r][c] = new Blocks(false,0,-1,Percepts,"data/empty.png");
-						break;
+						default:
+							GameMap[r][c] = new Blocks(false, 0, -1, "data/empty.png");
+							break;
+						}
+
 					}
-	    			
-	    		}
-			  }
+				}
 			}
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} 
-		
-		for(int r = 0 ; r <30; r++)
-		{
-		    for(int c = 0 ; c < 30 ; c++)
-    		{
-		    	switch (GameMap[r][c].getType()) {
-				case '2':
-					UpdatePercepts(r,c,"feeling weird","toxic");
-					break;
-				case '3':
-					UpdatePercepts(r,c,"somewhat smelly", "horrible smell");
-					break;
-				case '4':
-					UpdatePercepts(r,c,"sparkling","very shiny");
-				default:
-					//nothing
-					break;
-				}
-    			
-    		}
 		}
-    }
 
-    public int getX() {
-        
-        return x;
-    }
+		for (int r = 0; r < 30; r++) {
+			for (int c = 0; c < 30; c++) {
+				if( GameMap[r][c].getType() == 2)
+				{
+					UpdatePercepts(r, c, "somewhat smelly", -10, "horrible smell", -40);
+				} else
+				{
+					
+				}if( GameMap[r][c].getType() == 3)
+				{
+					UpdatePercepts(r, c, "feeling weird", -30, "toxic", -100);
+				} else if( GameMap[r][c].getType() == 4)
+				{
+					UpdatePercepts(r, c, "sparkling", 100, "very shiny", 200);
+				}
+			}
+		}
+	}
 
-    public int getY() {
-        
-        return y;
-    }
-    
-    public int getWidth() {
-        
-        return w;
-    }
-    
-    public int getHeight() {
-        
-        return h;
-    }    
+	public int getX() {
 
-    public Image getImage() {
-        
-        return image;
-    }
-    
-    public int getGoalRow() {
+		return x;
+	}
+
+	public int getY() {
+
+		return y;
+	}
+
+	public int getWidth() {
+
+		return w;
+	}
+
+	public int getHeight() {
+
+		return h;
+	}
+
+	public Image getImage() {
+
+		return image;
+	}
+
+	public int getGoalRow() {
 		return GoalRow;
 	}
 
@@ -160,125 +149,117 @@ public class GameMap {
 	public void setGoalCol(int goalCol) {
 		GoalCol = goalCol;
 	}
-	
-	private void UpdatePercepts(int R, int C, String Percept1, String Percept2 )
-	{
-			for(int r = R - 1; r< R + 1; r++)
-				{
-						for(int c = C - 1; c< C + 1; c++)
-						{
-							if(r > 0 && r<26)
-							{
-								if(c > 0 && c<29)
-								{
-									GameMap[r][c].addPercept(Percept1);
-								}
-							}
-						}
-				}
-			
-			for(int r = R - 2; r< R + 2; r++)
-				{
-						for(int c = C - 2; c< C + 2; c++)
-						{
-							if(r > 0 && r<26)
-							{
-								if(c > 0 && c<29)
-								{
-									System.out.println("r " + r + " c " + c);
-									GameMap[r][c].addPercept(Percept2);
-								}
-							}
-						}
-				}
+
+	public int GetScore() {
+		return GameMap[Row][Col].getScoreImpact();
 	}
-	
-	public boolean DetermineGoalState()
-	{
-		if(Col == GoalCol && Row == GoalRow)
-		{
-		return true;
+
+	private void UpdatePercepts(int R, int C, String Percept1, int S1, String Percept2, int S2) {
+		for (int r = R - 1; r <= R + 1; r++) {
+			for (int c = C - 1; c <= C + 1; c++) {
+				if (r > 0 && r < 26) {
+					if (c > 0 && c < 29) {
+						//System.out.println("P1 r " + r + " c " + c + " PERCEPT Before" + GameMap[r][c].getPercepts() );
+						GameMap[r][c].addPercept(Percept2);
+						System.out.println("P1 r " + r + " c " + c + " PERCEPT After" +  GameMap[r][c].getPercepts() );
+						//GameMap[r][c].setScoreImpact(GameMap[r][c].getScoreImpact() + S1);
+					}
+				}
+			}
+		}
+
+		for (int r = R - 2; r <= R + 2; r++) {
+			for (int c = C - 2; c <= C + 2; c++) {
+				if (r > 0 && r < 26) {
+					if (c > 0 && c < 29) {
+						//System.out.println("P1 r " + r + " c " + c + " PERCEPT Before" + GameMap[r][c].getPercepts() );
+						GameMap[r][c].addPercept(Percept1);
+						System.out.println("P2 r " + r + " c " + c + " PERCEPT After" +  GameMap[r][c].getPercepts() );
+						//System.out.println("r " + r + " c " + c);
+						//System.out.println("p2 r " + r + " c " + c + " PERCEPT " + Percept2);
+						//GameMap[r][c].addPercept(Percept2);
+						//GameMap[r][c].setScoreImpact(GameMap[r][c].getScoreImpact() + S2);
+					}
+				}
+			}
+		}
+
+	}
+
+	public boolean DetermineGoalState() {
+		if (Col == GoalCol && Row == GoalRow) {
+			return true;
 		}
 		return false;
 	}
 
 	public void keyPressed(KeyEvent e) {
-        
-		if(DetermineGoalState() == false)
-		{
-        int key = e.getKeyCode();
 
-        if (key == KeyEvent.VK_LEFT) {
-        	if(DetectCollision(Row, Col - 1)  == false)
-        	{
-        	x = x - 30;	
-        	Col = Col - 1;
-        	}
-            
-        }
+		if (DetermineGoalState() == false) {
+			int key = e.getKeyCode();
 
-        if (key == KeyEvent.VK_RIGHT) {
-        	if(DetectCollision(Row, Col + 1) == false)
-        	{
-            x = x + 30;
-            Col = Col +1;
-        	}
-        }
+			if (key == KeyEvent.VK_LEFT) {
+				if (DetectCollision(Row, Col - 1) == false) {
+					x = x - 30;
+					Col = Col - 1;
+				}
 
-        if (key == KeyEvent.VK_UP) {
-        	if(DetectCollision(Row - 1, Col)  == false)
-        	{
-            y = y -30;
-            Row = Row - 1;
-        	}
-        }
+			}
 
-        if (key == KeyEvent.VK_DOWN) {
-        	if(DetectCollision(Row + 1, Col)  == false)
-        	{
-            y = y + 30;
-            Row = Row + 1;
-        	}
-        }
+			if (key == KeyEvent.VK_RIGHT) {
+				if (DetectCollision(Row, Col + 1) == false) {
+					x = x + 30;
+					Col = Col + 1;
+				}
+			}
+
+			if (key == KeyEvent.VK_UP) {
+				if (DetectCollision(Row - 1, Col) == false) {
+					y = y - 30;
+					Row = Row - 1;
+				}
+			}
+
+			if (key == KeyEvent.VK_DOWN) {
+				if (DetectCollision(Row + 1, Col) == false) {
+					y = y + 30;
+					Row = Row + 1;
+				}
+			}
+		}
+	}
+
+	public void keyReleased(KeyEvent e) {
+
+		int key = e.getKeyCode();
+
+		if (key == KeyEvent.VK_LEFT) {
+			dx = 0;
 		}
 
-		PerceptSequence = GameMap[Row][Col].getPercepts() ;
-    }
+		if (key == KeyEvent.VK_RIGHT) {
+			dx = 0;
+		}
 
-    public void keyReleased(KeyEvent e) {
-        
-        int key = e.getKeyCode();
+		if (key == KeyEvent.VK_UP) {
+			dy = 0;
+		}
 
-        if (key == KeyEvent.VK_LEFT) {
-            dx = 0;
-        }
+		if (key == KeyEvent.VK_DOWN) {
+			dy = 0;
+		}
+	}
 
-        if (key == KeyEvent.VK_RIGHT) {
-            dx = 0;
-        }
-
-        if (key == KeyEvent.VK_UP) {
-            dy = 0;
-        }
-
-        if (key == KeyEvent.VK_DOWN) {
-            dy = 0;
-        }
-    }
-    
-    public boolean DetectCollision(int Row, int Col)
-    {
-    	if(Row < 0 | Row >26 | Col < 0 | Col>29)
-    	{
-    		return true;
-    	}
-    	if(GameMap[Row][Col].getType() == 8 )
-    	{
-    		return true;
-    	}
+	public boolean DetectCollision(int Row, int Col) {
+		if (Row < 0 | Row > 26 | Col < 0 | Col > 29) {
+			return true;
+		}
+		if (GameMap[Row][Col].getType() == 8) {
+			return true;
+		}
 		return false;
-    	
-    }
+
+	}
 
 	public Blocks[][] getGameMap() {
 		return GameMap;
@@ -289,14 +270,12 @@ public class GameMap {
 	}
 
 	public ArrayList<String> getPerceptSequence() {
+		PerceptSequence = GameMap[Row][Col].getPercepts() ;
 		return PerceptSequence;
 	}
 
 	public void setPerceptSequence(ArrayList<String> perceptSequence) {
 		PerceptSequence = perceptSequence;
 	}
-	
-	
-    
-    
+
 }

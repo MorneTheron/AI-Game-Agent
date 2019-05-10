@@ -1,0 +1,109 @@
+import java.util.ArrayList;
+
+public class Agent {
+	
+	private ArrayList<KB> KnowledgeBase ;
+	private int cRow = 0 ;
+	private int cCol = 0 ;
+	private int goalRow = 0 ;
+	private int goalCol = 0 ;
+	
+	public Agent()
+	{
+		KnowledgeBase = new ArrayList<KB>() ;
+	}
+	
+	public void UpdateKB(String Percept, int Impact, boolean Allowable, int Suggest)
+	{
+		int UpdateIndex = searchKB(Percept) ;
+		if(UpdateIndex == -1)
+		{
+			KnowledgeBase.add(new KB(Percept, Impact, Suggest)) ;
+		}else
+		{
+			KnowledgeBase.get(UpdateIndex).setPerceptImpact(Impact);
+			KnowledgeBase.get(UpdateIndex).setSuggestedMove(Suggest);
+		}
+	}
+	
+	public void TakeTurn(int Row, int Col, ArrayList<String> Percepts, int ScoreImpact, boolean previousMoveAlloed)
+	{
+		if(previousMoveAlloed == false)
+		{
+			
+		}
+	}
+	
+	private int searchKB(String percept)
+	{
+		for(int i = 0 ; i < KnowledgeBase.size(); i++)
+		{
+			if(KnowledgeBase.get(i).getPercept().equals(percept))
+			{
+				return i ;
+			}
+		}
+		return -1;
+	}
+	
+	public int DetermineMove(String Percept)
+	{
+		int KBindex = searchKB(Percept);
+		
+		if(KBindex == -1)
+		{
+			return 9 ; // means nothing is known about the percept yet
+		}else {
+			if(KnowledgeBase.get(KBindex).getSuggestedMove() == 0)
+			{
+				return 0 ; //means no move suggestion learned yet
+			}else
+			{
+				return KnowledgeBase.get(KBindex).getSuggestedMove() ;
+				//	1  2  3
+				//	4  0  5 
+				//	6  7  8
+			}	
+		}		
+	}
+
+	public ArrayList<KB> getKnowledgeBase() {
+		return KnowledgeBase;
+	}
+
+	public void setKnowledgeBase(ArrayList<KB> knowledgeBase) {
+		KnowledgeBase = knowledgeBase;
+	}
+
+	public int getcRow() {
+		return cRow;
+	}
+
+	public void setcRow(int cRow) {
+		this.cRow = cRow;
+	}
+
+	public int getcCol() {
+		return cCol;
+	}
+
+	public void setcCol(int cCol) {
+		this.cCol = cCol;
+	}
+
+	public int getGoalRow() {
+		return goalRow;
+	}
+
+	public void setGoalRow(int goalRow) {
+		this.goalRow = goalRow;
+	}
+
+	public int getGoalCol() {
+		return goalCol;
+	}
+
+	public void setGoalCol(int goalCol) {
+		this.goalCol = goalCol;
+	}
+}
