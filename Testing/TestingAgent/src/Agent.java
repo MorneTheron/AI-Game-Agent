@@ -35,8 +35,16 @@ public class Agent {
 		for(int p = 0 ; p < Percepts.size(); p++)
 		{
 			int KBindex = searchKB(Percepts.get(p)) ;
-			KnowledgeBase.get(KBindex).setPerceptImpact(ScoreImpact/Percepts.size());
-			KnowledgeBase.get(KBindex).setMoveAllowed(MoveAllowed);
+			if(KBindex == -1)
+			{
+				KnowledgeBase.add(new KB(Percepts.get(p), ScoreImpact, true)) ;
+				
+			}else
+			{
+				KnowledgeBase.get(KBindex).setPerceptImpact((KnowledgeBase.get(KBindex).getPerceptImpact() + ScoreImpact/Percepts.size())/2);
+				KnowledgeBase.get(KBindex).setMoveAllowed(MoveAllowed);	
+			}
+
 		}	
 	}
 	
@@ -56,11 +64,12 @@ public class Agent {
 	{
 		for(int i = 0 ; i < KnowledgeBase.size(); i++)
 		{
-			if(KnowledgeBase.get(i).getPercept().equals(percept))
+			if(percept.compareTo(KnowledgeBase.get(i).getPercept()) == 0)
 			{
 				return i ;
 			}
 		}
+		
 		return -1;
 	}
 	

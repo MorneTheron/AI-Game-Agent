@@ -1,0 +1,220 @@
+import java.util.ArrayList;
+
+public class Agent {
+	
+	private ArrayList<KB> KnowledgeBase ;
+	private int cRow = 0 ;
+	private int cCol = 0 ;
+	private int moveLocation = 0;
+	private int goalRow = 0 ;
+	private int goalCol = 0 ;
+	private ArrayList<moves> StepsTaken ;
+	private ArrayList<surroundings> SurroundingMoves ;
+	private int heuristic = 20 ;
+	
+	public Agent()
+	{
+		KnowledgeBase = new ArrayList<KB>() ;
+		StepsTaken = new ArrayList<moves>() ;
+	}
+	
+	public void UpdateKB(String Percept, int Impact, boolean Allowable)
+	{
+		int UpdateIndex = searchKB(Percept) ;
+		if(UpdateIndex == -1)
+		{
+			KnowledgeBase.add(new KB(Percept, Impact, true)) ;
+		}else
+		{
+			KnowledgeBase.get(UpdateIndex).setPerceptImpact(Impact);
+		}
+	}
+	
+	public void Learn(ArrayList<String> Percepts, int ScoreImpact, boolean MoveAllowed)
+	{
+		for(int p = 0 ; p < Percepts.size(); p++)
+		{
+			int KBindex = searchKB(Percepts.get(p)) ;
+			if(KBindex == -1)
+			{
+				KnowledgeBase.add(new KB(Percepts.get(p), ScoreImpact, true)) ;
+				
+			}else
+			{
+				KnowledgeBase.get(KBindex).setPerceptImpact(ScoreImpact/Percepts.size());
+				KnowledgeBase.get(KBindex).setMoveAllowed(MoveAllowed);	
+			}
+
+		}	
+	}
+	
+	public void updateSurrounding(int location, ArrayList<String> percepts)
+	{
+		if(SurroundingMoves.size() < location)
+		{
+			SurroundingMoves.add(new surroundings(location, percepts,0)) ;
+		} else
+		{
+			SurroundingMoves.get(location).setPercepts(percepts);
+			SurroundingMoves.get(location).setHeuristicValue(0);
+		}
+	}
+	
+	private int searchKB(String percept)
+	{
+		for(int i = 0 ; i < KnowledgeBase.size(); i++)
+		{
+			if(percept.compareTo(KnowledgeBase.get(i).getPercept()) == 0)
+			{
+				return i ;
+			}
+		}
+		
+		return -1;
+	}
+	
+	private void determineHeursitics()
+	{
+		double HeuristicValue = 0 ;
+		for(int h = 1 ; h < 9; h++)
+		{
+			for(int p = 0; p < SurroundingMoves.get(h).getPercepts().size() ; p++)
+			{
+				int index = searchKB(SurroundingMoves.get(h).getPercepts().get(p)) ;
+				HeuristicValue = HeuristicValue + KnowledgeBase.get(index).getPerceptImpact() ;
+			}
+			SurroundingMoves.get(h).setHeuristicValue(HeuristicValue);
+		}
+	}
+	
+	private int DirectionHeuristics()
+	{
+		if(cRow < goalRow)
+		{
+			if(cCol < goalCol)
+			{
+				return 1 ; //up and left
+			} else
+			{
+				return 2 ; //up and right
+			}
+		} else
+		{
+			if(cCol < goalCol)
+			{
+				return 3 ; //down and left
+			} else
+			{
+				return 4 ; //down and right
+			}	
+		}
+	}
+	
+	public void MakeMove()
+	{
+		// 1  2  3 
+		// 4  0  5 
+		// 6  7  8
+		
+		determineHeursitics() ;
+		moveLocation = 0 ;
+		int dir = DirectionHeuristics() ;
+		if(dir == 1)
+		{
+			SurroundingMoves.get(1).setHeuristicValue(SurroundingMoves.get(1).getHeuristicValue() + heuristic);
+			SurroundingMoves.get(2).setHeuristicValue(SurroundingMoves.get(2).getHeuristicValue() + heuristic);
+			SurroundingMoves.get(4).setHeuristicValue(SurroundingMoves.get(3).getHeuristicValue() + heuristic);
+		}else if(dir == 2)
+		{
+			SurroundingMoves.get(2).setHeuristicValue(SurroundingMoves.get(2).getHeuristicValue() + heuristic);
+			SurroundingMoves.get(3).setHeuristicValue(SurroundingMoves.get(3).getHeuristicValue() + heuristic);
+			SurroundingMoves.get(5).setHeuristicValue(SurroundingMoves.get(5).getHeuristicValue() + heuristic);
+		}else if(dir == 3)
+		{
+			SurroundingMoves.get(4).setHeuristicValue(SurroundingMoves.get(4).getHeuristicValue() + heuristic);
+			SurroundingMoves.get(6).setHeuristicValue(SurroundingMoves.get(6).getHeuristicValue() + heuristic);
+			SurroundingMoves.get(7).setHeuristicValue(SurroundingMoves.get(7).getHeuristicValue() + heuristic);
+		} else
+		{
+			SurroundingMoves.get(5).setHeuristicValue(SurroundingMoves.get(5).getHeuristicValue() + heuristic);
+			SurroundingMoves.get(7).setHeuristicValue(SurroundingMoves.get(7).getHeuristicValue() + heuristic);
+			SurroundingMoves.get(8).setHeuristicValue(SurroundingMoves.get(8).getHeuristicValue() + heuristic);			
+		}
+		
+		for(int m = 1 ; m < 8 ; m++)
+		{
+			if(SurroundingMoves.get(m).getHeuristicValue() < SurroundingMoves.get(m + 1).getHeuristicValue())
+			{
+				if(MoveIsProbable(SurroundingMoves.get(m + 1).getPercepts()))
+				{
+					moveLocation = m + 1 ;	
+				}
+			}
+		}
+	}
+	
+	private boolean MoveIsProbable(ArrayList<String> Sequence)
+	{
+		for(int s = 1; s <= Sequence.size() ; s++)
+		{
+			int index = searchKB(Sequence.get(s)) ;
+			if(KnowledgeBase.get(index).isMoveAllowed() == false)
+			{
+				return false ;
+			}
+		}
+		return true;
+		
+	}
+	
+	public int DetermineMove(String Percept)
+	{
+		int KBindex = searchKB(Percept);
+		
+		if(KBindex == -1)
+		{
+			return 0 ; // means nothing is known about the percept yet
+		}
+		return 8 ;
+	}
+
+	public ArrayList<KB> getKnowledgeBase() {
+		return KnowledgeBase;
+	}
+
+	public void setKnowledgeBase(ArrayList<KB> knowledgeBase) {
+		KnowledgeBase = knowledgeBase;
+	}
+
+	public int getcRow() {
+		return cRow;
+	}
+
+	public void setcRow(int cRow) {
+		this.cRow = cRow;
+	}
+
+	public int getcCol() {
+		return cCol;
+	}
+
+	public void setcCol(int cCol) {
+		this.cCol = cCol;
+	}
+
+	public int getGoalRow() {
+		return goalRow;
+	}
+
+	public void setGoalRow(int goalRow) {
+		this.goalRow = goalRow;
+	}
+
+	public int getGoalCol() {
+		return goalCol;
+	}
+
+	public void setGoalCol(int goalCol) {
+		this.goalCol = goalCol;
+	}
+}

@@ -63,15 +63,19 @@ public class GameMap {
 						switch (st.charAt(c)) {
 						case '8':
 							GameMap[r][c] = new Blocks(false, 8, 0, "data/wall.png");
+							definePercepts(r,c,"WALL",0);
 							break;
 						case '2':
 							GameMap[r][c] = new Blocks(false, 2, -100, "data/mud.png");
+							definePercepts(r,c,"MUD",-100);
 							break;
 						case '3':
 							GameMap[r][c] = new Blocks(false, 3, -1000, "data/enimy.png");
+							definePercepts(r,c,"ENIMY",-1000);
 							break;
 						case '4':
 							GameMap[r][c] = new Blocks(false, 4, 1000, "data/treasure.png");
+							definePercepts(r,c,"GOAL",1000);
 							GoalCol = c;
 							GoalRow = r;
 							break;
@@ -153,16 +157,38 @@ public class GameMap {
 	public int GetScore() {
 		return GameMap[Row][Col].getScoreImpact();
 	}
+	
+	
+
+	public int getRow() {
+		return Row;
+	}
+
+	public void setRow(int row) {
+		Row = row;
+	}
+
+	public int getCol() {
+		return Col;
+	}
+
+	public void setCol(int col) {
+		Col = col;
+	}
+	
+	private void definePercepts(int R, int C, String Percept, int Score) {
+		GameMap[R][C].addPercept(Percept);
+		GameMap[R][C].setScoreImpact(GameMap[R][C].getScoreImpact() + Score);
+
+	}
 
 	private void UpdatePercepts(int R, int C, String Percept1, int S1, String Percept2, int S2) {
 		for (int r = R - 1; r <= R + 1; r++) {
 			for (int c = C - 1; c <= C + 1; c++) {
 				if (r > 0 && r < 26) {
 					if (c > 0 && c < 29) {
-						//System.out.println("P1 r " + r + " c " + c + " PERCEPT Before" + GameMap[r][c].getPercepts() );
 						GameMap[r][c].addPercept(Percept2);
-						System.out.println("P1 r " + r + " c " + c + " PERCEPT After" +  GameMap[r][c].getPercepts() );
-						//GameMap[r][c].setScoreImpact(GameMap[r][c].getScoreImpact() + S1);
+						GameMap[r][c].setScoreImpact(GameMap[r][c].getScoreImpact() + S1);
 					}
 				}
 			}
@@ -172,13 +198,8 @@ public class GameMap {
 			for (int c = C - 2; c <= C + 2; c++) {
 				if (r > 0 && r < 26) {
 					if (c > 0 && c < 29) {
-						//System.out.println("P1 r " + r + " c " + c + " PERCEPT Before" + GameMap[r][c].getPercepts() );
 						GameMap[r][c].addPercept(Percept1);
-						System.out.println("P2 r " + r + " c " + c + " PERCEPT After" +  GameMap[r][c].getPercepts() );
-						//System.out.println("r " + r + " c " + c);
-						//System.out.println("p2 r " + r + " c " + c + " PERCEPT " + Percept2);
-						//GameMap[r][c].addPercept(Percept2);
-						//GameMap[r][c].setScoreImpact(GameMap[r][c].getScoreImpact() + S2);
+						GameMap[r][c].setScoreImpact(GameMap[r][c].getScoreImpact() + S2);
 					}
 				}
 			}

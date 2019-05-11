@@ -42,40 +42,14 @@ public class Game extends JPanel implements ActionListener, Runnable {
     
     private GameMap gMap;
     private int Score = 1000 ;
+    private int prevScore = 1000;
+	private Agent GameAgent ;
 
 	public Game() {
 		
 		initBoard();
+		GameAgent = new Agent() ;
 	}
-	
-	private void drawDonut(Graphics g) {
-
-        Graphics2D g2d = (Graphics2D) g;
-
-        RenderingHints rh
-                = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-
-        rh.put(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-
-        g2d.setRenderingHints(rh);
-
-        Dimension size = getSize();
-        double w = size.getWidth();
-        double h = size.getHeight();
-
-        Ellipse2D e = new Ellipse2D.Double(0, 0, 80, 130);
-        g2d.setStroke(new BasicStroke(1));
-        g2d.setColor(Color.gray);
-
-        for (double deg = 0; deg < 360; deg += 5) {
-            AffineTransform at
-                    = AffineTransform.getTranslateInstance(w/2, h/2);
-            at.rotate(Math.toRadians(deg));
-            g2d.draw(at.createTransformedShape(e));
-        }
-    }
 	
 	    private void loadImage() {
 	
@@ -142,6 +116,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	        drawPlayer(g);
 	        drawScore(g);
 	        drawPercepts(g);
+	        drawKB(g);
 	        Toolkit.getDefaultToolkit().sync();
 	       // drawStar(g);
 	    }
@@ -155,7 +130,6 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	    private void drawScore(Graphics g)
 	    {
 	    
-	    	  
 	    	  Font font = new Font("Serif", Font.PLAIN, 44);
 	    	  g.setFont(font);
 	    	  // Draw a string such that its base line is at x, y
@@ -170,6 +144,18 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	    	  g.setFont(font);
 	    	  // Draw a string such that its base line is at x, y
 	    	  g.drawString("Percepts: " + ListPercepts , 950, 100);
+	    }
+	    
+	    private void drawKB(Graphics g)
+	    {
+	    	  Font font = new Font("Serif", Font.PLAIN, 18);
+	    	  g.setFont(font);
+	    	  // Draw a string such that its base line is at x, y
+	    	  for(int i = 0 ; i< GameAgent.getKnowledgeBase().size(); i++)
+	    	  {
+	    		  g.drawString(GameAgent.getKnowledgeBase().get(i).getPercept() + " score impact " + GameAgent.getKnowledgeBase().get(i).getPerceptImpact() , 950,150+ 50*i);
+	    	  }
+	    	
 	    }
 	
 	
@@ -226,7 +212,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 		{
 			//Show Goal screen
 		}
-			step();
+		step();
 			
 
 	}
@@ -248,8 +234,10 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	
 	private void UpdateScore()
 	{
+		prevScore = Score;
 		Score = Score + gMap.GetScore() ;
 	}
+	
 
     private class TAdapter extends KeyAdapter {
 
@@ -257,7 +245,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
         public void keyReleased(KeyEvent e) {
         	UpdateScore();
         	gMap.keyReleased(e);
-        	
+        	GameAgent.Learn(gMap.getPerceptSequence(), Score - prevScore, true);
         }
 
         @Override
@@ -267,3 +255,33 @@ public class Game extends JPanel implements ActionListener, Runnable {
     }
 
 }
+
+/** private void drawDonut(Graphics g) {
+
+    Graphics2D g2d = (Graphics2D) g;
+
+    RenderingHints rh
+            = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+    rh.put(RenderingHints.KEY_RENDERING,
+            RenderingHints.VALUE_RENDER_QUALITY);
+
+    g2d.setRenderingHints(rh);
+
+    Dimension size = getSize();
+    double w = size.getWidth();
+    double h = size.getHeight();
+
+    Ellipse2D e = new Ellipse2D.Double(0, 0, 80, 130);
+    g2d.setStroke(new BasicStroke(1));
+    g2d.setColor(Color.gray);
+
+    for (double deg = 0; deg < 360; deg += 5) {
+        AffineTransform at
+                = AffineTransform.getTranslateInstance(w/2, h/2);
+        at.rotate(Math.toRadians(deg));
+        g2d.draw(at.createTransformedShape(e));
+    }
+} **/
+

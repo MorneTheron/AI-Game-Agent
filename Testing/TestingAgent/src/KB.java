@@ -13,8 +13,8 @@ public class KB {
 	}
 	
 	public KB(String Percept, int Impact, boolean allowable) {
-		this.Percept = "";
-		this.PerceptImpact = 0 ;
+		this.Percept = Percept;
+		this.PerceptImpact = Impact ;
 		this.MoveAllowed = allowable ; 
 	}
 	
