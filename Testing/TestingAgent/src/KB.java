@@ -5,6 +5,7 @@ public class KB {
 	private String Percept;
 	private double PerceptImpact = 0 ;
 	private boolean MoveAllowed; //-1 means take move back after it has been made, 0 means no suggestion, 1 to 8 means direction to move in next
+	
 
 	public KB() {
 		this.Percept = "";

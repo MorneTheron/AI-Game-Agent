@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class Agent {
 	
@@ -10,12 +11,33 @@ public class Agent {
 	private int goalCol = 0 ;
 	private ArrayList<moves> StepsTaken ;
 	private ArrayList<surroundings> SurroundingMoves ;
+	private List<Node> SolutionPath ;
+	public boolean PathSolutionGenerated = false ;
+	
+	private MapKnowledge[][] MapKB ;// Contains the knowledge it has on how blocks are expected to influence the score
+	private AstarSearchAlgo searchAlg ;
 	private int heuristic = 20 ;
+	private Matrix MathMatrix ;
 	
 	public Agent()
 	{
 		KnowledgeBase = new ArrayList<KB>() ;
 		StepsTaken = new ArrayList<moves>() ;
+		MapKB = new MapKnowledge[30][30] ;
+	}
+	
+	public void AgentTurn(int r, int c)
+	{
+		searchAlg = new AstarSearchAlgo(r,c);
+		searchAlg.setMapKB(MapKB);
+		searchAlg.run() ;
+		
+		PathSolutionGenerated = searchAlg.PathSolutionGenerated ;
+		if(PathSolutionGenerated)
+		{
+			SolutionPath = searchAlg.getSolutionPath() ;
+		}
+		
 	}
 	
 	public void UpdateKB(String Percept, int Impact, boolean Allowable)
@@ -31,34 +53,59 @@ public class Agent {
 	}
 	
 	public void Learn(ArrayList<String> Percepts, int ScoreImpact, boolean MoveAllowed)
-	{
+	{	
 		for(int p = 0 ; p < Percepts.size(); p++)
 		{
 			int KBindex = searchKB(Percepts.get(p)) ;
 			if(KBindex == -1)
 			{
-				KnowledgeBase.add(new KB(Percepts.get(p), ScoreImpact, true)) ;
+				KnowledgeBase.add(new KB(Percepts.get(p), ScoreImpact, MoveAllowed)) ;
 				
 			}else
 			{
-				KnowledgeBase.get(KBindex).setPerceptImpact((KnowledgeBase.get(KBindex).getPerceptImpact() + ScoreImpact/Percepts.size())/2);
-				KnowledgeBase.get(KBindex).setMoveAllowed(MoveAllowed);	
+				KnowledgeBase.get(KBindex).setPerceptImpact((KnowledgeBase.get(KBindex).getPerceptImpact() + ScoreImpact/Percepts.size())/2);	
 			}
 
 		}	
 	}
 	
-	public void updateSurrounding(int location, ArrayList<String> percepts)
+	private void LineariseKnowledge()
 	{
-		if(SurroundingMoves.size() < location)
+		// percept 1     percept2      percept 3 
+		//     ax1         ax2           ax3      =     b1
+		//     bx1         bx2           bx3      =     b2
+		//     cx1         cx2           cx3      =     b3
+		
+		int m  = KnowledgeBase.size() ;
+		
+		double[][] d = new double[m][m] ;
+		for(int Mm = 0 ; Mm < m ; Mm++)
 		{
-			SurroundingMoves.add(new surroundings(location, percepts,0)) ;
-		} else
-		{
-			SurroundingMoves.get(location).setPercepts(percepts);
-			SurroundingMoves.get(location).setHeuristicValue(0);
+			for(int Mn = 0 ; Mn < m ; Mn++)
+			{
+				d[Mm][Mn] = KnowledgeBase.get(Mm).getPerceptImpact() ;
+			}
 		}
+		
+		for(int Mm = 0 ; Mm < m ; Mm++)
+		{
+				d[Mm][0] = KnowledgeBase.get(Mm).getPerceptImpact() ;
+		}
+		
+		
+		
+		/* double[][] d = { { 1, 2, 3 }, { 4, 5, 6 }, { 9, 1, 3} };
+        Matrix A = new Matrix(d);
+        A.show();
+        
+        double[][] y = {{2} ,{ 5 }, {5}} ;
+        Matrix Y = new Matrix(y);
+        
+        Matrix X = A.solve(Y);
+        X.show(); */
 	}
+	
+
 	
 	private int searchKB(String percept)
 	{
@@ -71,6 +118,49 @@ public class Agent {
 		}
 		
 		return -1;
+	}
+	
+	public boolean determineBlockedSpaces(ArrayList<String> percepts)
+	{
+		for(int i = 0 ; i < percepts.size(); i++)
+		{
+			if(percepts.get(i).compareTo("WALL") == 0)
+			{
+				return true ;
+			}
+		}
+		
+		return false;
+	}
+	
+	public double EstimatedValue(ArrayList<String> percepts)
+	{
+		double value = 0 ;
+		System.out.println("SIZE " + KnowledgeBase.size());
+		for(int p = 0 ; p < percepts.size() ; p++)
+    	{	
+			int index = searchKB(percepts.get(p));
+			if(index != -1)
+			{
+			value = value + KnowledgeBase.get(index).getPerceptImpact() ;
+			
+			}
+    	}
+		System.out.println("Value " + value);
+		return value;
+		
+	}
+	
+	public void updateSurrounding(int location, ArrayList<String> percepts)
+	{
+		if(SurroundingMoves.size() < location)
+		{
+			SurroundingMoves.add(new surroundings(location, percepts,0)) ;
+		} else
+		{
+			SurroundingMoves.get(location).setPercepts(percepts);
+			SurroundingMoves.get(location).setHeuristicValue(0);
+		}
 	}
 	
 	private void determineHeursitics()
@@ -86,6 +176,8 @@ public class Agent {
 			SurroundingMoves.get(h).setHeuristicValue(HeuristicValue);
 		}
 	}
+	
+
 	
 	private int DirectionHeuristics()
 	{
@@ -177,7 +269,7 @@ public class Agent {
 		}
 		return 8 ;
 	}
-
+	
 	public ArrayList<KB> getKnowledgeBase() {
 		return KnowledgeBase;
 	}
@@ -217,4 +309,40 @@ public class Agent {
 	public void setGoalCol(int goalCol) {
 		this.goalCol = goalCol;
 	}
+
+	public MapKnowledge[][] getMapKB() {
+		return MapKB;
+	}
+
+	public void setMapKB(MapKnowledge[][] mapKB) {
+		MapKB = mapKB;
+	}
+
+	public List<Node> getSolutionPath() {
+		return SolutionPath;
+	}
+
+	public void setSolutionPath(List<Node> solutionPath) {
+		SolutionPath = solutionPath;
+	}
+
+	public AstarSearchAlgo getSearchAlg() {
+		return searchAlg;
+	}
+
+	public void setSearchAlg(AstarSearchAlgo searchAlg) {
+		this.searchAlg = searchAlg;
+	}
+
+	public boolean isPathSolutionGenerated() {
+		return PathSolutionGenerated;
+	}
+
+	public void setPathSolutionGenerated(boolean pathSolutionGenerated) {
+		PathSolutionGenerated = pathSolutionGenerated;
+	}
+	
+	
+	
+	
 }

@@ -13,6 +13,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.ImageIcon;
@@ -27,7 +29,7 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	 */
 	private static final long serialVersionUID = 1L;
     private final int B_WIDTH = 1300;
-    private final int B_HEIGHT = 800;
+    private final int B_HEIGHT = 900;
     private final int INITIAL_X = -40;
     private final int INITIAL_Y = -40;
     private final int DELAY = 25;
@@ -44,11 +46,15 @@ public class Game extends JPanel implements ActionListener, Runnable {
     private int Score = 1000 ;
     private int prevScore = 1000;
 	private Agent GameAgent ;
+	private List<Node> SolutionPath ;
+	
+	private boolean LoadedAgent = false ;
 
 	public Game() {
 		
 		initBoard();
 		GameAgent = new Agent() ;
+		
 	}
 	
 	    private void loadImage() {
@@ -57,6 +63,29 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	        star = ii.getImage();
 	    }
 	
+	    private void loadKBtoAgent()
+	    {
+	    	MapKnowledge[][] mKB = new MapKnowledge[30][30] ;
+	    	for(int r = 0 ; r < 30 ; r++)
+	    	{
+	    		for(int c = 0 ; c < 30; c++)
+	    		{
+	    			if(GameAgent.determineBlockedSpaces(gMap.getGameMap()[r][c].getPercepts()) == true)
+	    			{
+	    				mKB[r][c] = new MapKnowledge(gMap.getGameMap()[r][c].getPercepts(), -50000,true) ;
+	    			}
+	    			else
+	    			{
+	    				mKB[r][c] = new MapKnowledge(gMap.getGameMap()[r][c].getPercepts(), GameAgent.EstimatedValue(gMap.getGameMap()[r][c].getPercepts()),false) ;
+	    			}
+	    			
+	    		}
+	    	}
+	    	
+	    	GameAgent.setMapKB(mKB);
+	    	
+	    }
+	    
 	   private void initBoard() {
 
 		   	addKeyListener(new TAdapter());
@@ -71,6 +100,8 @@ public class Game extends JPanel implements ActionListener, Runnable {
 	        
 	        
 	        gMap = new GameMap();
+
+			
 	       
 	        timer = new Timer(DELAY, this);
 	        timer.start();
@@ -211,7 +242,32 @@ public class Game extends JPanel implements ActionListener, Runnable {
 		if(gMap.DetermineGoalState())
 		{
 			//Show Goal screen
+			
+			if(LoadedAgent == false)
+			{
+				loadKBtoAgent();
+				GameAgent.AgentTurn(25,28);
+				
+				if(GameAgent.isPathSolutionGenerated())
+				{
+					SolutionPath = GameAgent.getSolutionPath() ;
+					
+					  Thread thread = new Thread(){
+						    public void run(){
+						      showAgentsGameplay();
+						      System.out.println("Thread Running");
+						      
+						    }
+						  };
+
+					thread.start();
+					
+				}
+				LoadedAgent = true ;
+			}
 		}
+		
+
 		step();
 			
 
@@ -238,6 +294,21 @@ public class Game extends JPanel implements ActionListener, Runnable {
 		Score = Score + gMap.GetScore() ;
 	}
 	
+	private void showAgentsGameplay()
+	{
+		for(int l = 0 ; l < SolutionPath.size() ; l ++)
+		{
+			gMap.UpdateAgentMove(SolutionPath.get(l).c, SolutionPath.get(l).r);
+			UpdateScore();
+			try {
+				TimeUnit.MILLISECONDS.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 
     private class TAdapter extends KeyAdapter {
 
@@ -245,7 +316,14 @@ public class Game extends JPanel implements ActionListener, Runnable {
         public void keyReleased(KeyEvent e) {
         	UpdateScore();
         	gMap.keyReleased(e);
-        	GameAgent.Learn(gMap.getPerceptSequence(), Score - prevScore, true);
+        	if(gMap.getGameMap()[gMap.getRow()][gMap.getCol()].getType() == 8)
+        	{
+        		GameAgent.Learn(gMap.getPerceptSequence(), Score - prevScore, true);
+        	}else
+        	{
+        		GameAgent.Learn(gMap.getPerceptSequence(), Score - prevScore, false);
+        	}
+        	
         }
 
         @Override

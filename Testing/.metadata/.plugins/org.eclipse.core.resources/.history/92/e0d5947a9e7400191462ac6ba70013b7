@@ -1,0 +1,12 @@
+import java.util.*; 
+
+public class mapNode {
+	
+	private int value;
+	private Linkedlist<Node> neighbors;
+	
+	public mapNode() {
+		
+	}
+
+}

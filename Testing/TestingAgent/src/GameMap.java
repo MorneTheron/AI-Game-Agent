@@ -249,6 +249,15 @@ public class GameMap {
 			}
 		}
 	}
+	
+	public void UpdateAgentMove(int col , int row)
+	{
+		this.Col = col ;
+		x = col*30 ;
+		this.Row = row ;
+		y = row*30;
+		System.out.println("Move to col " + col + " Move to row " + row  + " x = " + x  + " y = " + y);
+	}
 
 	public void keyReleased(KeyEvent e) {
 
